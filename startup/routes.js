@@ -10,7 +10,7 @@ module.exports = (app) => {
   app.use(cookieParser());
   app.use(
     cors({
-      origin: ["https://myself.onrender.com", "http://localhost:3000"],
+      origin: ["https://myself-44f0.onrender.com", "http://localhost:3000"],
       credentials: true,
       optionsSuccessStatus: 200,
     })
