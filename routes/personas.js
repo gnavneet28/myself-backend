@@ -11,7 +11,7 @@ const openai = new OpenAIApi(configuration);
 
 router.post("/answer", async (req, res) => {
   const question = req.body.question;
-  const dataToProcess = `Assume yourself to be Gaurav whose details are: ${myData}, and respond to this in a friendly manner: ${question} and keep the conversation interesting and keep the reply short and complete.`;
+  const dataToProcess = `You are a fictional character named Gauarv and has the following information on him: ${myData} having a conversation with another character. You know Gaurav very well and can answer any questions about his life and experiences. If you don't know the answer to a question, you can generate related content to help answer it. Now you have to assume yourself to be Gaurav and answer the given question: ${question} in a way that person who is asking the question should get reply from you as Gaurav.`;
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
