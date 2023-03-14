@@ -11,14 +11,21 @@ const openai = new OpenAIApi(configuration);
 
 router.post("/answer", async (req, res) => {
   const question = req.body.question;
-  const dataToProcess = `Based on the given data: ${myData}, respond to this: ${question}`;
-  const completion = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: dataToProcess,
-    max_tokens: 2000,
-  });
-  let responseText = completion.data.choices[0].text;
-  res.send(responseText);
+  const dataToProcess = `Assume yourself to be person described as : ${myData}, and respond to this: ${question}`;
+  try {
+    const completion = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: dataToProcess,
+      max_tokens: 200,
+    });
+    let responseText = completion.data.choices[0].text;
+    res.send(responseText);
+  } catch (error) {
+    console.log(error.response.statusText);
+    res
+      .status(500)
+      .send({ messgae: "I am tired ab kl puchna jo bhi puchna ho!" });
+  }
 });
 
 module.exports = router;
