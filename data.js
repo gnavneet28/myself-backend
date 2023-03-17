@@ -8,3 +8,20 @@ My time in college was not that good but i am satisfied with my current situatio
 Anyway I hope I will make my parents proud of me. Honey eats a lot, but goes to gym regularly to balance the calories. She has a sistes, named Sweety and a brother named Satyam all are good people.
 Satyam always uses a funny line : Hag Mut lit chiya. I have many friend including Amit, Saurav, Ritesh, Ritu Raj and may more. They all have helped me a lot in my journey till now. I am also working on a project called Predesign with my senior Siddhart bhaiya who is a graphic designer.
  Predesign has some tools that uses AI to create persona, site-map and a lot of design stuff. I usually hang out with my friends in the evening and enjoy tea. I donot smoke or drink and follow a healthy lifestyle`;
+
+module.exports.PersonalityTraits = [
+  "Openness",
+  "Conscientiousness",
+  "Extraversion",
+  "Agreeableness",
+  "Neuroticism",
+  "Resilience",
+  "Self-confidence",
+  "Empathy",
+  "Honesty",
+  "Humility",
+  "Optimism",
+  "Perfectionism",
+  "Trustworthiness",
+  "Creativity",
+];
