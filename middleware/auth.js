@@ -10,9 +10,7 @@ module.exports.auth = async function auth(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
-    req.user = await User.findOne({ _id: decoded._id }).populate(
-      "personalAvatar"
-    );
+    req.user = await User.findOne({ _id: decoded._id });
     next();
   } catch (error) {
     res.status(400).send({ message: "Invalid Token" });

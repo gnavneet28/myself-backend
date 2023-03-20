@@ -24,7 +24,6 @@ const {
 } = require("../utility/sendEmail");
 const jwtDecode = require("jwt-decode");
 const { Persona } = require("../models/persona");
-const { default: mongoose } = require("mongoose");
 
 // login/signup with mail
 router.post("/new/gmail/login", async (req, res) => {
@@ -38,7 +37,9 @@ router.post("/new/gmail/login", async (req, res) => {
       .status(400)
       .send({ message: "Email or name of the account was not found!" });
   }
-  let user = await User.findOne({ email: email, oAuthLogged: true });
+  let user = await User.findOne({ email: email, oAuthLogged: true }).populate(
+    "personalAvatar"
+  );
   if (user) {
     return sendToken(user, 200, res);
   } else {
@@ -113,7 +114,13 @@ router.post("/login", validator(validateLogin), async (req, res) => {
 });
 
 // get current user
-router.get("/me", [auth], (req, res) => {
+router.get("/me", [auth], async (req, res) => {
+  if (req.user.personalAvatar) {
+    let user = await User.findOne({ _id: req.user._id }).populate(
+      "personalAvatar"
+    );
+    return res.send(user);
+  }
   res.send(req.user);
 });
 
@@ -124,12 +131,12 @@ router.get(
   async (req, res) => {
     let users = await User.find({
       name: {
-        $regex: req.query.keyword,
+        $regex: req.query.keyword.trim(),
         $options: "i",
       },
     })
       .limit(100)
-      .select("_id name avatar_url");
+      .select("_id name avatar_url personalAvatar");
 
     res.send(users);
   }
@@ -157,13 +164,15 @@ router.put(
     };
 
     let file = req.file;
+    let personalAvatar = null;
 
     if (!file) {
       let avatar = null;
       if (req.user.personalAvatar) {
-        await Persona.findOneAndUpdate(
+        personalAvatar = await Persona.findOneAndUpdate(
           { _id: req.user.personalAvatar },
-          { $set: { picture: "" } }
+          { $set: { picture: "" } },
+          { new: true }
         );
       }
       let user = await User.findOneAndUpdate(
@@ -171,7 +180,7 @@ router.put(
         { $set: { avatar_url: avatar } },
         { new: true, runValidators: true }
       );
-      return res.send(user);
+      return res.send({ user, avatar: personalAvatar });
     }
 
     const { path } = file;
@@ -191,9 +200,10 @@ router.put(
     }
 
     if (req.user.personalAvatar) {
-      await Persona.findOneAndUpdate(
+      personalAvatar = await Persona.findOneAndUpdate(
         { _id: req.user.personalAvatar },
-        { $set: { picture: newPath.url } }
+        { $set: { picture: newPath.url } },
+        { new: true }
       );
     }
 
@@ -202,7 +212,7 @@ router.put(
       { $set: { avatar_url: newPath.url } },
       { new: true, runValidators: true }
     );
-    res.send(user);
+    res.send({ user, avatar: personalAvatar });
   }
 );
 

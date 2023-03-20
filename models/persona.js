@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { PersonalityTraits } = require("../data");
 const Joi = require("joi");
+const { regex } = require("../utility/regex");
 
 const personaSchema = new mongoose.Schema({
   category: {
@@ -90,10 +91,6 @@ const personaSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  questionsAskedByCount: {
-    type: Number,
-    default: 0,
-  },
   lastUpdatedOn: {
     type: Date,
     default: Date.now,
@@ -122,6 +119,15 @@ const personaSchema = new mongoose.Schema({
     },
     required: true,
   },
+  links: {
+    type: Array,
+    default: [],
+  },
+  character: {
+    type: String,
+    default: "",
+    select: false,
+  },
 });
 
 const Persona = mongoose.model("Persona", personaSchema);
@@ -133,23 +139,23 @@ const validateNewPersona = (req) => {
       .valid(...PersonalityTraits)
       .label("Personality Trait")
       .required(),
-    goodAt: Joi.string().max(100).allow("").label("You are good at"),
+    goodAt: Joi.string().max(100).required().label("You are good at"),
     story: Joi.string().required().label("Your story").max(300),
-    goals: Joi.string().allow("").max(100).label("Your goal"),
+    goals: Joi.string().required().max(100).label("Your goal"),
     gender: Joi.string()
       .valid("Male", "Female", "Prefer not to say")
       .required()
       .label("Gender of your avatar"),
     physicalCharacteristics: Joi.string()
-      .allow("")
+      .required()
       .max(100)
       .label("Your avatar physical characterstics"),
     currentActivity: Joi.string()
-      .allow("")
+      .required()
       .max(100)
       .label("Your current activity"),
-    likes: Joi.string().allow("").max(80).label("Likes"),
-    dislikes: Joi.string().allow("").max(80).label("Dislikes"),
+    likes: Joi.string().required().max(80).label("Likes"),
+    dislikes: Joi.string().required().max(80).label("Dislikes"),
   });
 
   return schema.validate(req.body);
@@ -165,6 +171,32 @@ const validateCurrentActivityUpdate = (req) => {
   return schema.validate(req.body);
 };
 
+const validateNewLink = (req) => {
+  const schema = Joi.object({
+    title: Joi.string().max(60).required().label("Link title"),
+    link: Joi.string()
+      .max(300)
+      .regex(regex.storeLinks)
+      .label("Link")
+      .required(),
+  });
+
+  return schema.validate(req.body);
+};
+const validateLinkRemove = (req) => {
+  const schema = Joi.object({
+    link: Joi.string()
+      .max(300)
+      .regex(regex.storeLinks)
+      .label("Link")
+      .required(),
+  });
+
+  return schema.validate(req.body);
+};
+
 module.exports.Persona = Persona;
 module.exports.validateNewPersona = validateNewPersona;
+module.exports.validateNewLink = validateNewLink;
+module.exports.validateLinkRemove = validateLinkRemove;
 module.exports.validateCurrentActivityUpdate = validateCurrentActivityUpdate;
