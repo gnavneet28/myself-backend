@@ -115,13 +115,10 @@ router.post("/login", validator(validateLogin), async (req, res) => {
 
 // get current user
 router.get("/me", [auth], async (req, res) => {
-  if (req.user.personalAvatar) {
-    let user = await User.findOne({ _id: req.user._id }).populate(
-      "personalAvatar"
-    );
-    return res.send(user);
-  }
-  res.send(req.user);
+  let user = await User.findOne({ _id: req.user._id }).populate(
+    "personalAvatar"
+  );
+  res.send(user);
 });
 
 // search users
