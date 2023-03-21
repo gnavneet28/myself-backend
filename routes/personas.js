@@ -41,7 +41,7 @@ router.post("/answer/:id", [auth, validateObjectId], async (req, res) => {
 
   let character = avatarRequested.character;
 
-  const dataToProcess = `Imagine yourself as a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now there is another person named ${req.user.name} who is described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are that fictional character. You know ${req.user.name} also very well. Now give a valid and most accurate response to this question: ${question}? asked by ${req.user.name}.`;
+  const dataToProcess = `Imagine yourself as a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now there is another person named ${req.user.name} who is described as: ${characterOfCurrentUser}, if asks anything to you, you have to reply as if you are that fictional character. You know ${req.user.name} also very well. Now give a valid and most accurate response to this question: ${question}? asked by ${req.user.name}. Remember to not mix the descriptions of ${avatarRequested.name} and ${req.user.name} when replying to ${req.user.name}`;
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
