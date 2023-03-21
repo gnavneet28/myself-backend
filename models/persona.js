@@ -38,11 +38,7 @@ const personaSchema = new mongoose.Schema({
     default: "",
   },
   personalityTraits: {
-    type: String,
-    enum: {
-      values: PersonalityTraits,
-      message: "Please mention a valid personality trait.",
-    },
+    type: Array,
     required: true,
   },
   story: {
@@ -135,9 +131,9 @@ const Persona = mongoose.model("Persona", personaSchema);
 const validateNewPersona = (req) => {
   const schema = Joi.object({
     name: Joi.string().required().label("Your avatar name").max(50).min(3),
-    personalityTraits: Joi.string()
-      .valid(...PersonalityTraits)
-      .label("Personality Trait")
+    personalityTraits: Joi.array()
+      .min(1)
+      .label("Personality Traits")
       .required(),
     goodAt: Joi.string().max(100).required().label("You are good at"),
     story: Joi.string().required().label("Your story").max(300),

@@ -122,7 +122,7 @@ router.post(
 
     const prompt = `Create a character named ${newAvatar.name},
      a ${newAvatar.gender} with the following personality traits:
-      ${newAvatar.personalityTraits}. 
+      ${newAvatar.personalityTraits.join(", ")}. 
       ${newAvatar.name} is particularly good at 
       ${newAvatar.goodAt} and has set the following 
       goals for themselves: ${newAvatar.goals}. 
@@ -131,8 +131,12 @@ router.post(
       characteristics: ${newAvatar.physicalCharacteristics}. 
       Currently, ${newAvatar.name} is ${newAvatar.currentActivity}.
        In their free time, ${newAvatar.name} likes to ${newAvatar.likes}
-        but dislikes ${newAvatar.dislikes}. Using OpenAI's language model, generate a detailed description of 
-        ${newAvatar.name}, including their appearance, personality, backstory, and current situation. The output should 
+        but dislikes ${
+          newAvatar.dislikes
+        }. Using OpenAI's language model, generate a detailed description of 
+        ${
+          newAvatar.name
+        }, including their appearance, personality, backstory, and current situation. The output should 
         be highly creative and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
          strengths and weaknesses.`;
 
@@ -252,7 +256,7 @@ router.put(
 
     const prompt = `Create a character named ${updatedAvatar.name},
     a ${updatedAvatar.gender} with the following personality traits:
-     ${updatedAvatar.personalityTraits}. 
+     ${updatedAvatar.personalityTraits.join(", ")}. 
      ${updatedAvatar.name} is particularly good at 
      ${updatedAvatar.goodAt} and has set the following 
      goals for themselves: ${updatedAvatar.goals}. 
@@ -261,8 +265,12 @@ router.put(
      characteristics: ${updatedAvatar.physicalCharacteristics}. 
      Currently, ${updatedAvatar.name} is ${updatedAvatar.currentActivity}.
       In their free time, ${updatedAvatar.name} likes to ${updatedAvatar.likes}
-       but dislikes ${updatedAvatar.dislikes}. Using OpenAI's language model, generate a detailed description of 
-       ${updatedAvatar.name}, including their appearance, personality, backstory, and current situation. The output should 
+       but dislikes ${
+         updatedAvatar.dislikes
+       }. Using OpenAI's language model, generate a detailed description of 
+       ${
+         updatedAvatar.name
+       }, including their appearance, personality, backstory, and current situation. The output should 
        be highly creative and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
         strengths and weaknesses.`;
 

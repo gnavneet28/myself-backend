@@ -98,9 +98,9 @@ router.post("/register", validator(validateRegistration), async (req, res) => {
 router.post("/login", validator(validateLogin), async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email, oAuthLogged: false }).select(
-    "+password"
-  );
+  const user = await User.findOne({ email, oAuthLogged: false })
+    .select("+password")
+    .populate("personalAvatar");
 
   if (!user)
     return res.status(401).send({ message: "Invalid email or password" });
