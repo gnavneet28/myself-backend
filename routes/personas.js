@@ -19,10 +19,10 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 router.post("/answer/:id", [auth, validateObjectId], async (req, res) => {
-  const { question } = req.body.question;
+  const { question, recentQuestionsAsked } = req.body;
 
   let avatarRequested = await Persona.findOne({ _id: req.params.id }).select(
-    "character"
+    "+character +questionsAsked"
   );
   if (!avatarRequested) {
     return res.status(404).send({
@@ -41,7 +41,23 @@ router.post("/answer/:id", [auth, validateObjectId], async (req, res) => {
 
   let character = avatarRequested.character;
 
-  const dataToProcess = `Imagine that there is a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now if a person named ${req.user.name} and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this character. If you do not find enough information on either of them to respond then use your infinite imagination to answer. You are open minded so you do not have to hesitate while responding. Now that you are: ${avatarRequested.name}, give a valid, authentic, and most accurate response to this: ${question}?`;
+  const dataToProcess = `Imagine that there is a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now if a person named ${
+    req.user.name
+  } and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this fictional character: ${
+    avatarRequested.name
+  }. If you do not find enough information on ${
+    avatarRequested.name
+  } to respond then use your infinite imagination to answer that must be relevant to ${
+    avatarRequested.name
+  }. When you reply anything asked by ${
+    req.user.name
+  }, it should be authentic and feel like you are giving replies. Now that you are: ${
+    avatarRequested.name
+  }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
+    .slice(-5)
+    .join(", ")} by ${
+    req.user.name
+  }, recently, keeping in mind that you only have to answer this: ${question}, give a valid, authentic, and most accurate response to this: ${question}?`;
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
@@ -87,6 +103,7 @@ router.post(
       currentActivity,
       likes,
       dislikes,
+      languages,
     } = req.body;
 
     if (req.user.personalAvatar)
@@ -116,6 +133,7 @@ router.post(
       currentActivity,
       likes,
       dislikes,
+      languages,
       picture: req.user.avatar_url,
       createdBy: req.user._id,
     });
@@ -131,13 +149,15 @@ router.post(
       characteristics: ${newAvatar.physicalCharacteristics}. 
       Currently, ${newAvatar.name} is ${newAvatar.currentActivity}.
        In their free time, ${newAvatar.name} likes to ${newAvatar.likes}
-        but dislikes ${
-          newAvatar.dislikes
-        }. Using OpenAI's language model, generate a detailed description of 
+        but dislikes ${newAvatar.dislikes}. ${
+      newAvatar.name
+    } can speak in following languages: ${languages.join(
+      ", "
+    )}. Using OpenAI's language model, generate a detailed and precise description of 
         ${
           newAvatar.name
-        }, including their appearance, personality, backstory, and current situation. The output should 
-        be highly creative and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
+        }, including their appearance, way of speaking, personality, backstory, languages, personality traits,likes, dislikes, gender, current activity, goals and current situation. The output should 
+        be highly creative, authentic, and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
          strengths and weaknesses.`;
 
     let responseText = "";
@@ -212,6 +232,7 @@ router.put(
       currentActivity,
       likes,
       dislikes,
+      languages,
     } = req.body;
 
     if (!req.user.personalAvatar)
@@ -248,6 +269,7 @@ router.put(
           currentActivity,
           likes,
           dislikes,
+          languages,
           lastUpdatedOn: Date.now(),
         },
       },
@@ -265,13 +287,15 @@ router.put(
      characteristics: ${updatedAvatar.physicalCharacteristics}. 
      Currently, ${updatedAvatar.name} is ${updatedAvatar.currentActivity}.
       In their free time, ${updatedAvatar.name} likes to ${updatedAvatar.likes}
-       but dislikes ${
-         updatedAvatar.dislikes
-       }. Using OpenAI's language model, generate a detailed description of 
+       but dislikes ${updatedAvatar.dislikes}.${
+      updatedAvatar.name
+    } can speak in following languages: ${languages.join(
+      ", "
+    )}. Using OpenAI's language model, generate a detailed and precise description of
        ${
          updatedAvatar.name
-       }, including their appearance, personality, backstory, and current situation. The output should 
-       be highly creative and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
+       }, including their appearance, way of speaking, personality, backstory, languages, personality traits,likes, dislikes, gender, current activity, goals and current situation. The output should 
+       be highly creative, authentic, and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
         strengths and weaknesses.`;
 
     let responseText = "";
@@ -321,7 +345,7 @@ router.put(
     if (!req.user.personalAvatar) {
       return res.status(400).send({
         message:
-          "You have not created your avatar yet! Please create one to start add links.",
+          "You have not created your avatar yet! Please create one to start adding links.",
       });
     }
     let updatedAvatar = await Persona.findOneAndUpdate(

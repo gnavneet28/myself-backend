@@ -41,9 +41,14 @@ const personaSchema = new mongoose.Schema({
     type: Array,
     required: true,
   },
+  languages: {
+    type: Array,
+    required: true,
+    default: ["English", "Hindi"],
+  },
   story: {
     type: String,
-    maxLength: 300,
+    maxLength: 600,
     default: "",
   },
   goals: {
@@ -135,6 +140,7 @@ const validateNewPersona = (req) => {
       .min(1)
       .label("Personality Traits")
       .required(),
+    languages: Joi.array().min(1).label("Languages you know").required(),
     goodAt: Joi.string().max(100).required().label("You are good at"),
     story: Joi.string().required().label("Your story").max(300),
     goals: Joi.string().required().max(100).label("Your goal"),
