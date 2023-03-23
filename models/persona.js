@@ -197,8 +197,22 @@ const validateLinkRemove = (req) => {
   return schema.validate(req.body);
 };
 
+const validateQuestion = (req) => {
+  const schema = Joi.object({
+    question: Joi.string().required().max(100).label("Question"),
+    lastConversation: Joi.object({
+      asked: Joi.string().max(200).label("Last question asked").allow(""),
+      replied: Joi.string().max(1000).allow("").label("Last question replied"),
+    }),
+    recentQuestionsAsked: Joi.array().allow("").label("Recent questions asked"),
+  });
+
+  return schema.validate(req.body);
+};
+
 module.exports.Persona = Persona;
 module.exports.validateNewPersona = validateNewPersona;
 module.exports.validateNewLink = validateNewLink;
 module.exports.validateLinkRemove = validateLinkRemove;
 module.exports.validateCurrentActivityUpdate = validateCurrentActivityUpdate;
+module.exports.validateQuestion = validateQuestion;

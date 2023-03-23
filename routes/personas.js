@@ -6,6 +6,7 @@ const {
   Persona,
   validateNewLink,
   validateLinkRemove,
+  validateQuestion,
 } = require("../models/persona");
 const { default: mongoose } = require("mongoose");
 const { User } = require("../models/user");
@@ -18,74 +19,82 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-router.post("/answer/:id", [auth, validateObjectId], async (req, res) => {
-  const { question, recentQuestionsAsked } = req.body;
+router.post(
+  "/answer/:id",
+  [auth, validateObjectId, validator(validateQuestion)],
+  async (req, res) => {
+    const { question, recentQuestionsAsked, lastConversation } = req.body;
 
-  let avatarRequested = await Persona.findOne({ _id: req.params.id }).select(
-    "+character +questionsAsked"
-  );
-  if (!avatarRequested) {
-    return res.status(404).send({
-      message:
-        "This avatar is no longer available to interact with! This might have been deleted by its creator.",
-    });
+    let avatarRequested = await Persona.findOne({ _id: req.params.id }).select(
+      "+character +questionsAsked"
+    );
+    if (!avatarRequested) {
+      return res.status(404).send({
+        message:
+          "This avatar is no longer available to interact with! This might have been deleted by its creator.",
+      });
+    }
+    let characterOfCurrentUser = `${req.user.name} is a wonderful person to talk`;
+
+    if (req.user.personalAvatar) {
+      let currentUserAvatarCharacter = await Persona.findOne({
+        _id: req.user.personalAvatar,
+      }).select("+character");
+      characterOfCurrentUser = currentUserAvatarCharacter.character;
+    }
+
+    let character = avatarRequested.character;
+
+    const dataToProcess = `Imagine that there is a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now if a person named ${
+      req.user.name
+    } and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this fictional character: ${
+      avatarRequested.name
+    }. If you do not find enough information on ${
+      avatarRequested.name
+    } to respond then use your infinite imagination to answer that must be relevant to ${
+      avatarRequested.name
+    }. When you reply anything asked by ${
+      req.user.name
+    }, it should be authentic and feel like you are giving replies. Now that you are: ${
+      avatarRequested.name
+    }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
+      .slice(-5)
+      .join(", ")} by ${
+      req.user.name
+    } recently, and the last question you were asked from ${
+      req.user.name
+    } was:${lastConversation.asked} to which you replied: ${
+      lastConversation.replied
+    }, keeping in mind that you only have to answer this: ${question}, give a valid, authentic, and most accurate response to this: ${question}?`;
+    try {
+      const completion = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: dataToProcess,
+        max_tokens: 2048,
+      });
+      let responseText = completion.data.choices[0].text;
+      setTimeout(async () => {
+        await Persona.findOneAndUpdate(
+          { _id: req.params.id },
+          {
+            $addToSet: {
+              questionsAsked: question,
+              questionsAskedBy: req.user._id,
+            },
+            $inc: { questionsAskedCount: 1 },
+          }
+        );
+      }, 5000);
+      res.send(responseText);
+    } catch (error) {
+      // console.log(error.response.statusText);
+      res.status(500).send({
+        message:
+          "Sorry! I got busy somewhere. Can you ask again what you asked...",
+      });
+    }
   }
-  let characterOfCurrentUser = `${req.user.name} is a wonderful person to talk`;
-
-  if (req.user.personalAvatar) {
-    let currentUserAvatarCharacter = await Persona.findOne({
-      _id: req.user.personalAvatar,
-    }).select("+character");
-    characterOfCurrentUser = currentUserAvatarCharacter.character;
-  }
-
-  let character = avatarRequested.character;
-
-  const dataToProcess = `Imagine that there is a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now if a person named ${
-    req.user.name
-  } and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this fictional character: ${
-    avatarRequested.name
-  }. If you do not find enough information on ${
-    avatarRequested.name
-  } to respond then use your infinite imagination to answer that must be relevant to ${
-    avatarRequested.name
-  }. When you reply anything asked by ${
-    req.user.name
-  }, it should be authentic and feel like you are giving replies. Now that you are: ${
-    avatarRequested.name
-  }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
-    .slice(-5)
-    .join(", ")} by ${
-    req.user.name
-  }, recently, keeping in mind that you only have to answer this: ${question}, give a valid, authentic, and most accurate response to this: ${question}?`;
-  try {
-    const completion = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: dataToProcess,
-      max_tokens: 2048,
-    });
-    let responseText = completion.data.choices[0].text;
-    setTimeout(async () => {
-      await Persona.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          $addToSet: {
-            questionsAsked: question,
-            questionsAskedBy: req.user._id,
-          },
-          $inc: { questionsAskedCount: 1 },
-        }
-      );
-    }, 5000);
-    res.send(responseText);
-  } catch (error) {
-    // console.log(error.response.statusText);
-    res.status(500).send({
-      message:
-        "Sorry! I got busy somewhere. Can you ask again what you asked...",
-    });
-  }
-});
+);
 
 // create new avatar
 router.post(
