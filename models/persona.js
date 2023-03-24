@@ -142,7 +142,7 @@ const validateNewPersona = (req) => {
       .required(),
     languages: Joi.array().min(1).label("Languages you know").required(),
     goodAt: Joi.string().max(100).required().label("You are good at"),
-    story: Joi.string().required().label("Your story").max(300),
+    story: Joi.string().required().label("Your story").max(600),
     goals: Joi.string().required().max(100).label("Your goal"),
     gender: Joi.string()
       .valid("Male", "Female", "Prefer not to say")

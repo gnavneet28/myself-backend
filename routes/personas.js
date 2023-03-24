@@ -45,19 +45,25 @@ router.post(
 
     let character = avatarRequested.character;
 
-    const dataToProcess = `Imagine that there is a fictional character who is described as: ${character}. Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked. Now if a person named ${
-      req.user.name
-    } and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this fictional character: ${
+    const dataToProcess = `Imagine that there is a fictional character who is described as: ${character},
+     Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked.
+     Now if a person named ${
+       req.user.name
+     } and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this
+     fictional character: ${
+       avatarRequested.name
+     }. If you do not find enough information on ${
       avatarRequested.name
-    }. If you do not find enough information on ${
+    } to respond then use your 
+     infinite imagination to answer and that must be relevant to ${
+       avatarRequested.name
+     }. When you reply anything asked 
+     by ${req.user.name}, it should be authentic and feel like you as ${
       avatarRequested.name
-    } to respond then use your infinite imagination to answer that must be relevant to ${
-      avatarRequested.name
-    }. When you reply anything asked by ${
-      req.user.name
-    }, it should be authentic and feel like you are giving replies. Now that you are: ${
-      avatarRequested.name
-    }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
+    } is giving replies.
+     Now that you are: ${
+       avatarRequested.name
+     }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
       .slice(-5)
       .join(", ")} by ${
       req.user.name
@@ -87,10 +93,8 @@ router.post(
       }, 5000);
       res.send(responseText);
     } catch (error) {
-      // console.log(error.response.statusText);
       res.status(500).send({
-        message:
-          "Sorry! I got busy somewhere. Can you ask again what you asked...",
+        message: "Sorry! I am not available now. Can you ask again later...",
       });
     }
   }
@@ -147,7 +151,10 @@ router.post(
       createdBy: req.user._id,
     });
 
-    const prompt = `Create a character named ${newAvatar.name},
+    const prompt = `Create a character which is concious, self aware,has humour, has emotions, can reason, can imagine, 
+      can create, communicate according to its personality, has moral and ethical values, named ${
+        newAvatar.name
+      },
      a ${newAvatar.gender} with the following personality traits:
       ${newAvatar.personalityTraits.join(", ")}. 
       ${newAvatar.name} is particularly good at 
@@ -285,7 +292,10 @@ router.put(
       { new: true }
     );
 
-    const prompt = `Create a character named ${updatedAvatar.name},
+    const prompt = `Create a character which is concious, self aware,has humour, has emotions, can reason, can imagine, 
+    can create, communicate according to its personality, has moral and ethical values, named ${
+      updatedAvatar.name
+    },
     a ${updatedAvatar.gender} with the following personality traits:
      ${updatedAvatar.personalityTraits.join(", ")}. 
      ${updatedAvatar.name} is particularly good at 
