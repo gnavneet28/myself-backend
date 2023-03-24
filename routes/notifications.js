@@ -59,4 +59,14 @@ router.delete(
   }
 );
 
+router.put("/update/seen", [auth, isVerified], async (req, res) => {
+  let notifications = await Notification.updateMany(
+    { createdFor: req.user._id },
+    { $set: { seen: true } },
+    { new: true }
+  );
+
+  res.send(notifications);
+});
+
 module.exports = router;
