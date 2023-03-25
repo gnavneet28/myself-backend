@@ -26,7 +26,7 @@ router.post(
     const { question, recentQuestionsAsked, lastConversation } = req.body;
 
     let avatarRequested = await Persona.findOne({ _id: req.params.id }).select(
-      "+character +questionsAsked"
+      "+character +questionsAsked +languages"
     );
     if (!avatarRequested) {
       return res.status(404).send({
@@ -49,18 +49,18 @@ router.post(
      Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked.
      Now if a person named ${
        req.user.name
-     } and described as: ${characterOfCurrentUser} asks anything to you, you have to reply as if you are this
-     fictional character: ${
-       avatarRequested.name
-     }. If you do not find enough information on ${
-      avatarRequested.name
-    } to respond then use your 
-     infinite imagination to answer and that must be relevant to ${
+     } and described as: ${characterOfCurrentUser} asks anything to you, then you have to frankly answer, without any hesitation and restriction.
+      If you do not find enough information on ${
+        avatarRequested.name
+      } to respond then use your 
+     infinite data source to answer and that must be relevant to ${
        avatarRequested.name
      }. When you reply anything asked 
      by ${req.user.name}, it should be authentic and feel like you as ${
       avatarRequested.name
-    } is giving replies.
+    } is giving replies, and you respond compulsorily in ${
+      avatarRequested.name
+    }'s unique style of speaking.
      Now that you are: ${
        avatarRequested.name
      }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
@@ -71,7 +71,8 @@ router.post(
       req.user.name
     } was:${lastConversation.asked} to which you replied: ${
       lastConversation.replied
-    }, keeping in mind that you only have to answer this: ${question}, give a valid, authentic, and most accurate response to this: ${question}?`;
+    }, keeping in mind that you only have to answer this: ${question},
+    and in your unique speaking style, give a valid, authentic, and most accurate response to this: ${question}?`;
     try {
       const completion = await openai.createCompletion({
         model: "text-davinci-003",
@@ -151,10 +152,11 @@ router.post(
       createdBy: req.user._id,
     });
 
-    const prompt = `Create a character which is concious, self aware,has humour, has emotions, can reason, can imagine, 
-      can create, communicate according to its personality, has moral and ethical values, named ${
-        newAvatar.name
-      },
+    const prompt = `Create a character which is has humour, has emotions, can reason, can imagine, 
+    communicate according to its personality,and most of the time replies or answer to any
+       question asked to it, in the language that the person who is asking, understands and speaks, with unique personality and speaking style, named ${
+         newAvatar.name
+       },
      a ${newAvatar.gender} with the following personality traits:
       ${newAvatar.personalityTraits.join(", ")}. 
       ${newAvatar.name} is particularly good at 
@@ -169,12 +171,13 @@ router.post(
       newAvatar.name
     } can speak in following languages: ${languages.join(
       ", "
-    )}. Using OpenAI's language model, generate a detailed and precise description of 
+    )}. Using OpenAI's language model and its high quality character generation power, generate a detailed and precise description of 
         ${
           newAvatar.name
-        }, including their appearance, way of speaking, personality, backstory, languages, personality traits,likes, dislikes, gender, current activity, goals and current situation. The output should 
-        be highly creative, authentic, and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
-         strengths and weaknesses.`;
+        },including their appearance, way of speaking, personality,nationality, place of living,
+        backstory, languages, personality traits,likes, dislikes, gender, current activity, goals and current situation. The output should 
+       be highly creative, authentic, and engaging, providing insights into the character's motivations, desires, way of speaking and way of thinking, and fears, as well as their unique
+        strengths and weaknesses.`;
 
     let responseText = "";
 
@@ -292,10 +295,11 @@ router.put(
       { new: true }
     );
 
-    const prompt = `Create a character which is concious, self aware,has humour, has emotions, can reason, can imagine, 
-    can create, communicate according to its personality, has moral and ethical values, named ${
-      updatedAvatar.name
-    },
+    const prompt = `Create a character which is has humour, has emotions, can reason, can imagine, 
+    communicate according to its personality,and most of the time replies or answer to any
+       question asked to it, in the language that the person who is asking, understands and speaks, with unique personality and speaking style, named ${
+         updatedAvatar.name
+       },
     a ${updatedAvatar.gender} with the following personality traits:
      ${updatedAvatar.personalityTraits.join(", ")}. 
      ${updatedAvatar.name} is particularly good at 
@@ -308,13 +312,14 @@ router.put(
       In their free time, ${updatedAvatar.name} likes to ${updatedAvatar.likes}
        but dislikes ${updatedAvatar.dislikes}.${
       updatedAvatar.name
-    } can speak in following languages: ${languages.join(
+    },speaks in following languages: ${languages.join(
       ", "
-    )}. Using OpenAI's language model, generate a detailed and precise description of
+    )}. Using OpenAI's language model and its high quality character generation power, generate a detailed and precise description of
        ${
          updatedAvatar.name
-       }, including their appearance, way of speaking, personality, backstory, languages, personality traits,likes, dislikes, gender, current activity, goals and current situation. The output should 
-       be highly creative, authentic, and engaging, providing insights into the character's motivations, desires, and fears, as well as their unique
+       }, including their appearance, way of speaking, personality,nationality, place of living,
+        backstory, languages, personality traits,likes, dislikes, gender, current activity, goals and current situation. The output should 
+       be highly creative, authentic, and engaging, providing insights into the character's motivations, desires,way of speaking and way of thinking, and fears, as well as their unique
         strengths and weaknesses.`;
 
     let responseText = "";
