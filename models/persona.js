@@ -23,6 +23,13 @@ const personaSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  shareName: {
+    type: String,
+    default: function () {
+      return this.nameLowerCase.replace(/\s+/g, "_");
+    },
+    required: true,
+  },
   nameLowerCase: {
     type: String,
     unique: true,
@@ -135,7 +142,12 @@ const Persona = mongoose.model("Persona", personaSchema);
 
 const validateNewPersona = (req) => {
   const schema = Joi.object({
-    name: Joi.string().required().label("Your avatar name").max(50).min(3),
+    name: Joi.string()
+      .required()
+      .label("Your avatar name")
+      .max(50)
+      .min(3)
+      .regex(regex.username),
     personalityTraits: Joi.array()
       .min(1)
       .label("Personality Traits")

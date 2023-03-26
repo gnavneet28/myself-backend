@@ -127,7 +127,7 @@ router.post(
       });
 
     let personaWithGivenName = await Persona.findOne({
-      nameLowerCase: name.toLowerCase(),
+      nameLowerCase: name.trim().toLowerCase(),
     });
     if (personaWithGivenName)
       return res.status(400).send({
@@ -137,7 +137,8 @@ router.post(
 
     let newAvatar = new Persona({
       name,
-      nameLowerCase: name.toLowerCase(),
+      nameLowerCase: name.trim().toLowerCase(),
+      shareName: name.trim().toLowerCase().replace(/\s+/g, "_"),
       personalityTraits,
       gender,
       goals,
@@ -261,7 +262,7 @@ router.put(
       });
 
     let personaWithGivenName = await Persona.findOne({
-      nameLowerCase: name.toLowerCase(),
+      nameLowerCase: name.trim().toLowerCase(),
     });
     if (
       personaWithGivenName &&
@@ -278,7 +279,8 @@ router.put(
       {
         $set: {
           name,
-          nameLowerCase: name.toLowerCase(),
+          nameLowerCase: name.trim().toLowerCase(),
+          shareName: name.trim().toLowerCase().replace(/\s+/g, "_"),
           personalityTraits,
           gender,
           goals,
@@ -348,10 +350,20 @@ router.put(
 );
 
 // get avatar
-router.get("/avatar/:id", [validateObjectId], async (req, res) => {
-  let avatar = await Persona.findOne({ _id: req.params.id }).select(
-    "_id name typingText picture links"
-  );
+router.get("/avatar/:id", async (req, res) => {
+  if (req.params.id.length > 100)
+    return res.status(400).send({ message: "Invalid request!" });
+
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    let avatar = await Persona.findOne({ _id: req.params.id }).select(
+      "_id name typingText picture links shareName"
+    );
+    if (!avatar) return res.status(404).send({ message: "Avatar not found!" });
+    return res.send(avatar);
+  }
+  let avatar = await Persona.findOne({
+    shareName: req.params.id.trim().toLowerCase(),
+  }).select("_id name typingText picture links shareName");
   if (!avatar) return res.status(404).send({ message: "Avatar not found!" });
   res.send(avatar);
 });
