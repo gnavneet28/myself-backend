@@ -7,6 +7,7 @@ const {
   validateNewLink,
   validateLinkRemove,
   validateQuestion,
+  validateMoodUpdate,
 } = require("../models/persona");
 const { default: mongoose } = require("mongoose");
 const { User } = require("../models/user");
@@ -19,6 +20,7 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+// reply to question asked
 router.post(
   "/answer/:id",
   [auth, validateObjectId, validator(validateQuestion)],
@@ -34,6 +36,8 @@ router.post(
           "This avatar is no longer available to interact with! This might have been deleted by its creator.",
       });
     }
+
+    let moodOfCurrentUser = "Happy";
     let characterOfCurrentUser = `${req.user.name} is a wonderful person to talk`;
 
     if (req.user.personalAvatar) {
@@ -41,6 +45,7 @@ router.post(
         _id: req.user.personalAvatar,
       }).select("+character");
       characterOfCurrentUser = currentUserAvatarCharacter.character;
+      moodOfCurrentUser = currentUserAvatarCharacter.mood;
     }
 
     let character = avatarRequested.character;
@@ -49,7 +54,7 @@ router.post(
      Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked.
      Now if a person named ${
        req.user.name
-     } and described as: ${characterOfCurrentUser} asks anything to you, then you have to frankly answer, without any hesitation and restriction.
+     } and described as: ${characterOfCurrentUser}, asks anything to you, then you have to frankly answer, without any hesitation and restriction.
       If you do not find enough information on ${
         avatarRequested.name
       } to respond then use your 
@@ -71,7 +76,11 @@ router.post(
       req.user.name
     } was:${lastConversation.asked} to which you replied: ${
       lastConversation.replied
-    }, keeping in mind that you only have to answer this: ${question},
+    }, keeping in mind that you are now in a extremely ${
+      avatarRequested.mood ? avatarRequested.mood : "Happy"
+    } mood, and ${
+      req.user.name
+    } is in an extremely ${moodOfCurrentUser}, and only have to answer this: ${question},
     and in your unique speaking style, give a valid, authentic, and most accurate response to this: ${question}?`;
     try {
       const completion = await openai.createCompletion({
@@ -408,6 +417,23 @@ router.put(
         .status(404)
         .send({ message: "Requested avatar to update was not found!" });
 
+    res.send(updatedAvatar);
+  }
+);
+
+// update mood
+router.put(
+  "/update/mood",
+  [auth, validator(validateMoodUpdate)],
+  async (req, res) => {
+    if (!req.user.personalAvatar) {
+      return res.status(400).send({ message: "Invalid request!" });
+    }
+    let updatedAvatar = await Persona.findOneAndUpdate(
+      { _id: req.user.personalAvatar },
+      { $set: { mood: req.body.mood.trim() } },
+      { new: true }
+    );
     res.send(updatedAvatar);
   }
 );
