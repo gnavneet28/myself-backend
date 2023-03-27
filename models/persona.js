@@ -136,6 +136,11 @@ const personaSchema = new mongoose.Schema({
     default: "",
     select: false,
   },
+  mood: {
+    type: String,
+    default: "Happy",
+    trim: true,
+  },
 });
 
 const Persona = mongoose.model("Persona", personaSchema);
@@ -222,9 +227,18 @@ const validateQuestion = (req) => {
   return schema.validate(req.body);
 };
 
+const validateMoodUpdate = (req) => {
+  const schema = Joi.object({
+    mood: Joi.string().required().max(60).min(3).label("Mood"),
+  });
+
+  return schema.validate(req.body);
+};
+
 module.exports.Persona = Persona;
 module.exports.validateNewPersona = validateNewPersona;
 module.exports.validateNewLink = validateNewLink;
 module.exports.validateLinkRemove = validateLinkRemove;
 module.exports.validateCurrentActivityUpdate = validateCurrentActivityUpdate;
 module.exports.validateQuestion = validateQuestion;
+module.exports.validateMoodUpdate = validateMoodUpdate;
