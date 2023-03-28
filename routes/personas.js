@@ -206,6 +206,12 @@ router.post(
       });
     }
 
+    if (!responseText) {
+      return res
+        .status(500)
+        .send({ message: "Something failed! Please try again." });
+    }
+
     const session = await mongoose.startSession();
 
     try {
@@ -350,6 +356,12 @@ router.put(
       });
     }
 
+    if (!responseText) {
+      return res
+        .status(500)
+        .send({ message: "Something failed! Please try again." });
+    }
+
     await Persona.findOneAndUpdate(
       { _id: updatedAvatar._id },
       { $set: { character: responseText } }
@@ -367,13 +379,15 @@ router.get("/avatar/:id", async (req, res) => {
     let avatar = await Persona.findOne({ _id: req.params.id }).select(
       "_id name typingText picture links shareName"
     );
-    if (!avatar) return res.status(404).send({ message: "Avatar not found!" });
+    if (!avatar)
+      return res.status(404).send({ message: "Avatar Id not found!" });
     return res.send(avatar);
   }
   let avatar = await Persona.findOne({
-    shareName: req.params.id.trim().toLowerCase(),
+    shareName: req.params.id,
   }).select("_id name typingText picture links shareName");
-  if (!avatar) return res.status(404).send({ message: "Avatar not found!" });
+  if (!avatar)
+    return res.status(404).send({ message: "Avatar name not found!" });
   res.send(avatar);
 });
 
