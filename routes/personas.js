@@ -376,11 +376,10 @@ router.get("/avatar/:id", async (req, res) => {
     return res.status(400).send({ message: "Invalid request!" });
 
   if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-    let avatar = await Persona.findOne({ _id: req.params.id }).select(
-      "_id name typingText picture links shareName"
-    );
-    if (!avatar)
-      return res.status(404).send({ message: "Avatar Id not found!" });
+    let avatar = await Persona.findOne({
+      $or: [{ shareName: req.params.id }, { _id: req.params.id }],
+    }).select("_id name typingText picture links shareName");
+    if (!avatar) return res.status(404).send({ message: "Avatar not found!" });
     return res.send(avatar);
   }
   let avatar = await Persona.findOne({
