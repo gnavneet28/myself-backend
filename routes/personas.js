@@ -11,7 +11,7 @@ const {
 } = require("../models/persona");
 const { default: mongoose } = require("mongoose");
 const { User } = require("../models/user");
-const { auth, isVerified } = require("../middleware/auth");
+const { auth, isVerified, semiAuth } = require("../middleware/auth");
 const validator = require("../middleware/validator");
 const validateObjectId = require("../middleware/validateObjectId");
 
@@ -23,7 +23,7 @@ const openai = new OpenAIApi(configuration);
 // reply to question asked
 router.post(
   "/answer/:id",
-  [auth, validateObjectId, validator(validateQuestion)],
+  [semiAuth, validateObjectId, validator(validateQuestion)],
   async (req, res) => {
     const { question, recentQuestionsAsked, lastConversation } = req.body;
 
