@@ -40,7 +40,7 @@ const personaSchema = new mongoose.Schema({
   },
   goodAt: {
     type: String,
-    maxLength: 100,
+    maxLength: 200,
     trim: true,
     default: "",
   },
@@ -55,22 +55,22 @@ const personaSchema = new mongoose.Schema({
   },
   story: {
     type: String,
-    maxLength: 600,
+    maxLength: 800,
     default: "",
   },
   goals: {
     type: String,
-    maxLength: 100,
+    maxLength: 200,
     default: "",
   },
   physicalCharacteristics: {
     type: String,
-    maxLength: 100,
+    maxLength: 200,
     default: "",
   },
   currentActivity: {
     type: String,
-    maxLength: 100,
+    maxLength: 200,
     default: "",
   },
   createdBy: {
@@ -111,12 +111,12 @@ const personaSchema = new mongoose.Schema({
   },
   likes: {
     type: String,
-    maxLength: 80,
+    maxLength: 200,
     default: "",
   },
   dislikes: {
     type: String,
-    maxLength: 80,
+    maxLength: 200,
     default: "",
   },
   gender: {
@@ -158,23 +158,23 @@ const validateNewPersona = (req) => {
       .label("Personality Traits")
       .required(),
     languages: Joi.array().min(1).label("Languages you know").required(),
-    goodAt: Joi.string().max(100).required().label("You are good at"),
-    story: Joi.string().required().label("Your story").max(600),
-    goals: Joi.string().required().max(100).label("Your goal"),
+    goodAt: Joi.string().max(200).required().label("You are good at"),
+    story: Joi.string().required().label("Your story").max(800),
+    goals: Joi.string().required().max(200).label("Your goal"),
     gender: Joi.string()
       .valid("Male", "Female", "Prefer not to say")
       .required()
       .label("Gender of your avatar"),
     physicalCharacteristics: Joi.string()
       .required()
-      .max(100)
+      .max(200)
       .label("Your avatar physical characterstics"),
     currentActivity: Joi.string()
       .required()
-      .max(100)
+      .max(200)
       .label("Your current activity"),
-    likes: Joi.string().required().max(80).label("Likes"),
-    dislikes: Joi.string().required().max(80).label("Dislikes"),
+    likes: Joi.string().required().max(200).label("Likes"),
+    dislikes: Joi.string().required().max(200).label("Dislikes"),
   });
 
   return schema.validate(req.body);
