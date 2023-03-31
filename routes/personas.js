@@ -52,18 +52,21 @@ router.post(
 
     const dataToProcess = `Imagine that there is a fictional character who is described as: ${character},
      Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked.
-     Now if a person named ${
+     Now when a person named: ${
        req.user.name
-     } and described as: ${characterOfCurrentUser}, asks anything to you, then you have to frankly answer, without any hesitation and restriction.
+     }, and described as: ${characterOfCurrentUser}, asks anything to you, then you have to frankly answer, without any hesitation and restriction.
+     Do not ever mix the characters of: ${characterOfCurrentUser} and ${
+      avatarRequested.name
+    } ever when responding.
       If you do not find enough information on ${
         avatarRequested.name
       } to respond then use your 
      infinite data source to answer and that must be relevant to ${
        avatarRequested.name
-     }. When you reply anything asked 
+     }'s character. When you reply anything asked 
      by ${req.user.name}, it should be authentic and feel like you as ${
       avatarRequested.name
-    } is giving replies, and you respond compulsorily in ${
+    } is giving replies, and you must respond in : ${
       avatarRequested.name
     }'s unique style of speaking.
      Now that you are: ${
