@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { PersonalityTraits } = require("../data");
+const { socialLinks } = require("../data");
 const Joi = require("joi");
 const { regex } = require("../utility/regex");
 
@@ -198,6 +198,10 @@ const validateNewLink = (req) => {
       .regex(regex.storeLinks)
       .label("Link")
       .required(),
+    socialLinkType: Joi.string()
+      .required()
+      .label("Social Link Type")
+      .valid(...socialLinks),
   });
 
   return schema.validate(req.body);
