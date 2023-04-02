@@ -51,31 +51,31 @@ router.post(
     let character = avatarRequested.character;
 
     const dataToProcess = `Imagine that there is a fictional character who is described as: ${character},
-     Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked.
-     Now when a person named: ${
-       req.user.name
-     }, and described as: ${characterOfCurrentUser}, asks anything to you, then you have to frankly answer, without any hesitation and restriction.
-     Do not ever mix the characters of: ${characterOfCurrentUser} and ${
+    Now you know this fictional character very well, who has all the knowledge in the world and can answer any questions asked.
+    Now when a person named: ${
+      req.user.name
+    }, and described as: ${characterOfCurrentUser}, asks anything to you, then you have to frankly answer, without any hesitation and restriction.
+    Do not ever mix the characters of: ${characterOfCurrentUser} and ${
       avatarRequested.name
     } ever when responding.
-      If you do not find enough information on ${
-        avatarRequested.name
-      } to respond then use your 
-     infinite data source to answer and that must be relevant to ${
+     If you do not find enough information on ${
        avatarRequested.name
-     }'s character. When you reply anything asked 
-     by ${req.user.name}, it should be authentic and feel like you as ${
+     } to respond then use your 
+    infinite data source to answer and that must be relevant to ${
+      avatarRequested.name
+    }'s character. When you reply anything asked 
+    by ${req.user.name}, it should be authentic and feel like you as ${
       avatarRequested.name
     } is giving replies, and you must respond in : ${
       avatarRequested.name
     }'s unique style of speaking.
-     Now that you are: ${
-       avatarRequested.name
-     }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
+    Now that you are: ${
+      avatarRequested.name
+    }, and have the knowledge that you have been asked these questions: ${avatarRequested.questionsAsked
       .slice(-5)
-      .join(", ")} by ${
-      req.user.name
-    } recently, and the last question you were asked from ${
+      .join(
+        ", "
+      )} by different people recently, and the last question you were asked from ${
       req.user.name
     } was:${lastConversation.asked} to which you replied: ${
       lastConversation.replied
@@ -84,7 +84,7 @@ router.post(
     } mood, and ${
       req.user.name
     } is in an extremely ${moodOfCurrentUser}, and only have to answer this: ${question},
-    and in your unique speaking style, give a valid, authentic, and most accurate response to this: ${question}?`;
+   and in your unique speaking style, give a valid, authentic, and most accurate response to this: ${question}?`;
     try {
       const completion = await openai.createCompletion({
         model: "text-davinci-003",
