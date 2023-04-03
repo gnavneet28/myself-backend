@@ -71,7 +71,7 @@ router.post(
     }'s unique style of speaking.
     Now that you are: ${
       avatarRequested.name
-    }, and have the knowledge that you have been asked these questions: ${avatarRequested.questionsAsked
+    }, and have the knowledge that you have been asked these questions: ${recentQuestionsAsked
       .slice(-5)
       .join(
         ", "
